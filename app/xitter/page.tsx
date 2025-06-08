@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import botStyles from './bot.module.css';
 
 const FakeTweetPage = () => {
   const [tweet, setTweet] = useState('');
@@ -34,86 +33,42 @@ const FakeTweetPage = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Write a Fake Tweet</h1>
+    <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center p-8 font-sans">
+      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-xl box-border">
+        <h1 className="text-center text-gray-800 mb-6 text-2xl font-semibold">
+          Write a Fake Tweet
+        </h1>
         <form onSubmit={handleSubmit}>
           <textarea
             placeholder="Type your fake tweet here..."
             value={tweet}
             onChange={(e) => setTweet(e.target.value)}
             rows={4}
-            style={styles.textarea}
             required
             disabled={loading}
+            className="w-full min-h-[120px] p-4 text-base rounded-lg border text-indigo-300 border-gray-300 resize-y font-inherit
+                       focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-300 transition-colors"
           />
-          <button type="submit" style={styles.button} disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`mt-4 w-full py-3 rounded-lg font-semibold text-white
+                       ${loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-800 cursor-pointer'}
+                       transition-colors`}
+          >
             {loading ? 'Generating...' : 'Generate Response'}
           </button>
         </form>
 
         {botReply && (
-          <div style={styles.responseBox}>
-            <h2>Bot's Response:</h2>
+          <div className="mt-6 bg-blue-100 border border-blue-400 rounded-lg p-4 text-blue-900 whitespace-pre-wrap text-base leading-relaxed">
+            <h2 className="font-semibold mb-2">Bot's Response:</h2>
             <p>{botReply}</p>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f0f2f5',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '2rem',
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-  },
-  card: {
-    backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '1rem',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    width: '100%',
-    maxWidth: 600,
-  },
-  title: {
-    marginBottom: '1rem',
-    textAlign: 'center',
-    color: '#333',
-  },
-  textarea: {
-    width: '100%',
-    fontSize: '1rem',
-    padding: '1rem',
-    borderRadius: '0.5rem',
-    border: '1px solid #ccc',
-    resize: 'vertical',
-    marginBottom: '1rem',
-    fontFamily: 'inherit',
-  },
-  button: {
-    width: '100%',
-    backgroundColor: '#0070f3',
-    color: 'white',
-    padding: '0.75rem',
-    border: 'none',
-    borderRadius: '0.5rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-  },
-  responseBox: {
-    marginTop: '1.5rem',
-    padding: '1rem',
-    backgroundColor: '#e6f0ff',
-    borderRadius: '0.5rem',
-    border: '1px solid #99bbff',
-    color: '#003366',
-  },
 };
 
 export default FakeTweetPage;
