@@ -19,43 +19,62 @@ const FakeTweetPage = () => {
         body: JSON.stringify({ tweet }),
       });
 
-      if (!res.ok) {
-        throw new Error('API error');
-      }
-
       const data = await res.json();
       setBotReply(data.reply);
-    } catch (error) {
+    } catch (err) {
       setBotReply('Error generating reply.');
-      console.error(error);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <>
-      {/* Top Header */}
-      <header className="bg-blue-500 text-white py-3 px-6 shadow-md w-full flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition shadow-sm"
+ return (
+  <>
+    {/* Top Header */}
+    <header className="bg-blue-500 text-white py-3 px-6 shadow-md w-full flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Link
+          href="/"
+          className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition shadow-sm"
+        >
+          ← Home
+        </Link>
+        <h1 className="text-2xl font-bold">FakeTweet</h1>
+      </div>
+      <span className="text-sm opacity-80">by American Aviators</span>
+    </header>
+
+    {/* Main Layout with Sidebar */}
+    <main className="min-h-screen bg-gray-100 flex font-sans">
+      
+      {/* Sidebar */}
+      <aside className="w-64 p-6 space-y-4 border-r border-gray-200 bg-white shadow-sm">
+        {[
+          'Explore',
+          'Notifications',
+          'Messages',
+          'Bookmarks',
+          'Lists',
+          'Profile',
+          'More',
+        ].map((item) => (
+          <button
+            key={item}
+            className="w-full text-left text-gray-700 hover:text-blue-600 font-medium px-4 py-2 rounded-md hover:bg-blue-50 transition"
           >
-            ← Home
-          </Link>
-          <h1 className="text-2xl font-bold">FakeTweet</h1>
-        </div>
-        <span className="text-sm opacity-80">by American Aviators</span>
-      </header>
+            {item}
+          </button>
+        ))}
+      </aside>
 
       {/* Main Content */}
-      <main className="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
+      <section className="flex-1 flex justify-center items-center p-6">
         <div className="bg-white w-full max-w-2xl rounded-xl shadow-md p-6 space-y-6">
 
           {/* Page Title & Description */}
           <div className="text-center space-y-2">
-            <h2 className="text-3xl font-extrabold text-black drop-shadow-md">
+            <h2 className="text-3xl font-bold text-black drop-shadow-md">
               The Tweet Response Generator
             </h2>
             <p className="text-gray-500 text-sm max-w-lg mx-auto">
@@ -64,7 +83,7 @@ const FakeTweetPage = () => {
           </div>
 
           {/* Subheader */}
-          <h1 className="text-xl font-bold text-gray-800">Post your Fake Tweet</h1>
+          <h1 className="text-xl font-bold text-gray-800 drop-shadow-md">Post your Fake Tweet</h1>
 
           {/* Tweet Form */}
           <form onSubmit={handleSubmit} className="flex gap-4">
@@ -112,9 +131,11 @@ const FakeTweetPage = () => {
             </div>
           )}
         </div>
-      </main>
-    </>
+      </section>
+    </main>
+  </>
   );
+
 };
 
 export default FakeTweetPage;
