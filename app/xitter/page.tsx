@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const FakeTweetPage = () => {
   const [tweet, setTweet] = useState('');
@@ -33,46 +34,87 @@ const FakeTweetPage = () => {
   };
 
   return (
-  <main className="min-h-screen bg-gradient-to-r from-blue-400 to-red-400 flex flex-col items-center justify-center font-sans space-y-10 py-10">
-    <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-xl box-border">
-      <h1 className="text-center text-gray-800 mb-6 text-2xl font-semibold">
-        Write a Fake Tweet
-      </h1>
-
-      <form onSubmit={handleSubmit}>
-        <textarea
-          placeholder="Type your fake tweet here..."
-          value={tweet}
-          onChange={(e) => setTweet(e.target.value)}
-          rows={4}
-          required
-          disabled={loading}
-          className="w-full min-h-[120px] p-4 text-base rounded-lg border text-indigo-900 border-indigo-300 focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-300 transition-colors"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`mt-4 w-full py-3 rounded-lg font-semibold text-white transition ${
-            loading
-              ? 'bg-blue-300 cursor-not-allowed'
-              : 'bg-blue-400 hover:bg-blue-500'
-          }`}
-        >
-          {loading ? 'Generating...' : 'Generate Response'}
-        </button>
-      </form>
-
-      {botReply && (
-        <div className="mt-6 bg-blue-100 border border-blue-400 rounded-lg p-4 text-blue-900 whitespace-pre-wrap text-base leading-relaxed">
-          <h2 className="font-semibold mb-2">Bot's Response:</h2>
-          <p>{botReply}</p>
+    <>
+      {/* Top Header */}
+      <header className="bg-blue-500 text-white py-3 px-6 shadow-md w-full flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition shadow-sm"
+          >
+            ← Home
+          </Link>
+          <h1 className="text-2xl font-bold">FakeTweet</h1>
         </div>
-      )}
-    </div>
-  </main>
-  );
+        <span className="text-sm opacity-80">by American Aviators</span>
+      </header>
 
+      {/* Main Content */}
+      <main className="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
+        <div className="bg-white w-full max-w-2xl rounded-xl shadow-md p-6 space-y-6">
+
+          {/* Page Title & Description */}
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-extrabold text-black drop-shadow-md">
+              The Tweet Response Generator
+            </h2>
+            <p className="text-gray-500 text-sm max-w-lg mx-auto">
+              The AI generates the response tweets from American Airlines to other users' tweets that mention them.
+            </p>
+          </div>
+
+          {/* Subheader */}
+          <h1 className="text-xl font-bold text-gray-800">Post your Fake Tweet</h1>
+
+          {/* Tweet Form */}
+          <form onSubmit={handleSubmit} className="flex gap-4">
+            {/* Avatar */}
+            <div>
+              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
+                U
+              </div>
+            </div>
+
+            {/* Textarea and Submit */}
+            <div className="flex-1">
+              <textarea
+                placeholder="What's happening?"
+                value={tweet}
+                onChange={(e) => setTweet(e.target.value)}
+                rows={4}
+                required
+                disabled={loading}
+                className="w-full text-gray-800 p-3 text-base border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-sm text-gray-400">{tweet.length}/280</span>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`px-5 py-2 rounded-full font-semibold text-white transition ${
+                    loading
+                      ? 'bg-blue-300 cursor-not-allowed'
+                      : 'bg-blue-400 hover:bg-blue-500'
+                  }`}
+                >
+                  {loading ? 'Generating...' : 'Generate Tweet'}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {/* Bot Reply */}
+          {botReply && (
+            <div className="bg-gray-50 border border-gray-300 p-4 rounded-xl mt-4 text-gray-800">
+              <h2 className="font-semibold mb-2">Bot's Response:</h2>
+              <p className="whitespace-pre-wrap">{botReply}</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </>
+  );
 };
 
 export default FakeTweetPage;
