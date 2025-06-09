@@ -7,7 +7,7 @@ const HomePage = () => {
       
       {/* External Title */}
       <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
-        American Airlines Twitter Support Insights
+      Support Twitter team of American Airlines
       </h1>
 
       {/* Card Block */}
@@ -19,14 +19,14 @@ const HomePage = () => {
         <nav className="flex flex-col space-y-4">
           <Link
             href="/llm"
-            className="block w-full bg-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-cyan-700 transition"
+            className="block w-full bg-blue-400 text-white py-4 rounded-xl text-lg font-semibold hover:bg-blue-500 transition"
           >
             Ask the LLM
           </Link>
 
           <Link
             href="/xitter"
-            className="block w-full bg-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-cyan-700 transition"
+            className="block w-full bg-blue-400 text-white py-4 rounded-xl text-lg font-semibold hover:bg-blue-500 transition"
           >
             Write a Fake Tweet
           </Link>

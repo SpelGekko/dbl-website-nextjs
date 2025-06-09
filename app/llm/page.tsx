@@ -49,13 +49,13 @@ const LLMPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-200 flex items-center justify-center p-8 font-sans">
+    <div className="min-h-screen bg-blue-400 flex items-center justify-center p-8 font-sans">
       <div className="bg-white p-12 rounded-2xl shadow-lg w-full max-w-3xl">
         <h1 className="text-3xl font-semibold text-indigo-300 mb-6 text-center">Ask the LLM</h1>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            className="w-full p-3 border text-indigo-300 border-gray-100 rounded-md text-base mb-4 focus:outline-indigo-300"
+            className="w-full p-3 border text-black-300 border-gray-100 rounded-md text-base mb-4 focus:outline-indigo-300"
             placeholder="Type your question..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
