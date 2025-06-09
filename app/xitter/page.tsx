@@ -33,42 +33,46 @@ const FakeTweetPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center p-8 font-sans">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-xl box-border">
-        <h1 className="text-center text-gray-800 mb-6 text-2xl font-semibold">
-          Write a Fake Tweet
-        </h1>
-        <form onSubmit={handleSubmit}>
-          <textarea
-            placeholder="Type your fake tweet here..."
-            value={tweet}
-            onChange={(e) => setTweet(e.target.value)}
-            rows={4}
-            required
-            disabled={loading}
-            className="w-full min-h-[120px] p-4 text-base rounded-lg border text-indigo-300 border-gray-300 resize-y font-inherit
-                       focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-300 transition-colors"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className={`mt-4 w-full py-3 rounded-lg font-semibold text-white
-                       ${loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-800 cursor-pointer'}
-                       transition-colors`}
-          >
-            {loading ? 'Generating...' : 'Generate Response'}
-          </button>
-        </form>
+  <main className="min-h-screen bg-gradient-to-r from-blue-400 to-red-400 flex flex-col items-center justify-center font-sans space-y-10 py-10">
+    <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-xl box-border">
+      <h1 className="text-center text-gray-800 mb-6 text-2xl font-semibold">
+        Write a Fake Tweet
+      </h1>
 
-        {botReply && (
-          <div className="mt-6 bg-blue-100 border border-blue-400 rounded-lg p-4 text-blue-900 whitespace-pre-wrap text-base leading-relaxed">
-            <h2 className="font-semibold mb-2">Bot's Response:</h2>
-            <p>{botReply}</p>
-          </div>
-        )}
-      </div>
+      <form onSubmit={handleSubmit}>
+        <textarea
+          placeholder="Type your fake tweet here..."
+          value={tweet}
+          onChange={(e) => setTweet(e.target.value)}
+          rows={4}
+          required
+          disabled={loading}
+          className="w-full min-h-[120px] p-4 text-base rounded-lg border text-indigo-900 border-indigo-300 focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-300 transition-colors"
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`mt-4 w-full py-3 rounded-lg font-semibold text-white transition ${
+            loading
+              ? 'bg-blue-300 cursor-not-allowed'
+              : 'bg-blue-400 hover:bg-blue-500'
+          }`}
+        >
+          {loading ? 'Generating...' : 'Generate Response'}
+        </button>
+      </form>
+
+      {botReply && (
+        <div className="mt-6 bg-blue-100 border border-blue-400 rounded-lg p-4 text-blue-900 whitespace-pre-wrap text-base leading-relaxed">
+          <h2 className="font-semibold mb-2">Bot's Response:</h2>
+          <p>{botReply}</p>
+        </div>
+      )}
     </div>
+  </main>
   );
+
 };
 
 export default FakeTweetPage;
