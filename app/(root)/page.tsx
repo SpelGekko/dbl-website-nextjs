@@ -3,23 +3,38 @@ import Link from 'next/link';
 
 const HomePage = () => {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-300 to-blue-50 flex flex-col items-center justify-center p-8 font-serif">
-      <h1 className="text-6xl font-bold text-gray-900 mb-2 text-center">OPTIONS</h1>
-      <p className="text-xl text-cyan-900 mb-8 text-center">Choose an action below:</p>
-      <nav className="flex flex-col gap-8 w-full max-w-xl">
-        <Link
-          href="/llm"
-          className="block text-center bg-cyan-600 text-cyan-800 no-underline p-4 rounded-xl text-xl font-semibold transition-colors duration-300 hover:bg-gray-600"
-        >
-          Ask the LLM
-        </Link>
-        <Link
-          href="/xitter"
-          className="block text-center bg-cyan-600 text-cyan-800 no-underline p-4 rounded-xl text-xl font-semibold transition-colors duration-300 hover:bg-gray-600"
-        >
-          Write a Fake Tweet
-        </Link>
-      </nav>
+    <main className="min-h-screen bg-gradient-to-br from-blue-500 to-red-500 flex flex-col items-center justify-center font-sans space-y-10 py-10">
+      
+      {/* External Title */}
+      <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
+        American Airlines Twitter Support Insights
+      </h1>
+
+      {/* Card Block */}
+      <div className="bg-white p-10 rounded-2xl shadow-2xl max-w-xl w-full text-center space-y-6">
+        <h2 className="text-sm text-gray-500 uppercase tracking-widest">Welcome to</h2>
+        <h3 className="text-4xl font-bold text-gray-800">Tweet Support Bot</h3>
+        <p className="text-lg text-gray-600">Choose an action below:</p>
+
+        <nav className="flex flex-col space-y-4">
+          <Link
+            href="/llm"
+            className="block w-full bg-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-cyan-700 transition"
+          >
+            Ask the LLM
+          </Link>
+
+          <Link
+            href="/xitter"
+            className="block w-full bg-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-cyan-700 transition"
+          >
+            Write a Fake Tweet
+          </Link>
+        </nav>
+      </div>
+
+    {/* Subtitle below the card */}
+    <p className="text-white text-sm italic mt-4">by American Aviators</p>
     </main>
   );
 };
