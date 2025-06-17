@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { pollBotResponse } from '../utils/pollingUtils';
 
 // Interface for tweet history entries
 interface TweetExchange {
@@ -20,6 +21,7 @@ const FakeTweetPage = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [showUserTweet, setShowUserTweet] = useState(false);
   const [currentUserTweet, setCurrentUserTweet] = useState('');
+  const cancelPollingRef = useRef<(() => void) | null>(null);
 
   // Load tweet history from localStorage on initial render
   useEffect(() => {
@@ -68,6 +70,15 @@ const FakeTweetPage = () => {
     }
   }, [loading, botReply, currentUserTweet]);
 
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (cancelPollingRef.current) {
+        cancelPollingRef.current();
+      }
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tweet.trim()) return;
@@ -87,34 +98,94 @@ const FakeTweetPage = () => {
     const timeStart = Date.now();
     setStartTime(timeStart);
 
-    try {
-      const res = await fetch('/api/bot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tweet: currentTweet }),
-      });
-
-      const data = await res.json();
-      setBotReply(data.reply);
-      
-      // Calculate response time
-      const responseTime = Date.now() - timeStart;
-      
-      // Add to history
-      const now = new Date();
-      const timestamp = now.toLocaleString();
-      
-      setTweetHistory(prev => [
-        { userTweet: currentTweet, botReply: data.reply, timestamp, responseTime },
-        ...prev
-      ]);
-    } catch (err) {
-      setBotReply('Error generating reply.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setStartTime(null);
-    }
+    // Clean up any existing polling
+    if (cancelPollingRef.current) {
+      cancelPollingRef.current();
+      cancelPollingRef.current = null;
+    }    // Use the polling utility
+    cancelPollingRef.current = pollBotResponse(
+      currentTweet,
+      { 
+        pollInterval: 1000, // Poll every second
+        maxPollingTime: 2 * 60 * 1000 // 2 minutes max waiting time
+      },
+      {
+        onPoll: (attempt, elapsedTime) => {
+          console.log(`Polling attempt ${attempt}, elapsed: ${Math.round(elapsedTime/1000)}s`);
+          // Update the elapsed time in the UI
+          setElapsedTime(elapsedTime);
+        },
+        
+        onFinal: (data) => {
+          // Calculate response time
+          const responseTime = Date.now() - timeStart;
+          
+          // Set the bot reply
+          setBotReply(data.reply);
+          
+          // Add to history
+          const now = new Date();
+          const timestamp = now.toLocaleString();
+          
+          setTweetHistory(prev => [
+            { userTweet: currentTweet, botReply: data.reply, timestamp, responseTime },
+            ...prev
+          ]);
+          
+          setLoading(false);
+          setStartTime(null);
+          cancelPollingRef.current = null;
+        },
+        
+        onError: (error) => {
+          console.error("Error generating reply:", error);
+          setBotReply("Sorry, I couldn't generate a response at this time.");
+          
+          // Add to history
+          const now = new Date();
+          const timestamp = now.toLocaleString();
+          const responseTime = Date.now() - timeStart;
+          
+          setTweetHistory(prev => [
+            { 
+              userTweet: currentTweet, 
+              botReply: "Sorry, I couldn't generate a response at this time.", 
+              timestamp, 
+              responseTime 
+            },
+            ...prev
+          ]);
+          
+          setLoading(false);
+          setStartTime(null);
+          cancelPollingRef.current = null;
+        },
+        
+        onTimeout: () => {
+          console.error("Request timed out");
+          setBotReply("Sorry, the request timed out. Please try again with a shorter tweet.");
+          
+          // Add to history
+          const now = new Date();
+          const timestamp = now.toLocaleString();
+          const responseTime = Date.now() - timeStart;
+          
+          setTweetHistory(prev => [
+            { 
+              userTweet: currentTweet, 
+              botReply: "Sorry, the request timed out. Please try again with a shorter tweet.", 
+              timestamp, 
+              responseTime 
+            },
+            ...prev
+          ]);
+          
+          setLoading(false);
+          setStartTime(null);
+          cancelPollingRef.current = null;
+        }
+      }
+    );
   };
   
   const clearHistory = () => {

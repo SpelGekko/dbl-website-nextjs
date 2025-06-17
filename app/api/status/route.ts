@@ -25,9 +25,8 @@ export async function GET() {
       "X-API-Key": API_KEY
     };
 
-    try {
-      // Send a lightweight request to the API to check its status
-      const statusCheckUrl = `${API_BASE_URL}/status`; // Updated to use the correct /status endpoint
+    try {      // Send a lightweight request to the API to check its status
+      const statusCheckUrl = `${API_BASE_URL}/status`;
       
       console.log(`Checking API status at ${statusCheckUrl}`);
       

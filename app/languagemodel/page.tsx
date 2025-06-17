@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import { pollAnalysisRequest } from '../utils/pollingUtils';
 
 const LLMPage = () => {
   const [question, setQuestion] = useState('');
@@ -9,8 +10,10 @@ const LLMPage = () => {
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [streamedResponse, setStreamedResponse] = useState<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const cancelPollingRef = useRef<(() => void) | null>(null);
 
   // Load chat history from localStorage on initial render
   useEffect(() => {
@@ -37,8 +40,17 @@ const LLMPage = () => {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
+  
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (cancelPollingRef.current) {
+        cancelPollingRef.current();
+      }
+    };
+  }, []);
 
-  // Live timer update
+  // Clean up timer on unmount
   useEffect(() => {
     if (loading && startTime) {
       timerRef.current = setInterval(() => {
@@ -57,8 +69,8 @@ const LLMPage = () => {
         clearInterval(timerRef.current);
       }
     };
-  }, [loading, startTime]);
-
+  }, [loading, startTime]);  
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
@@ -70,41 +82,77 @@ const LLMPage = () => {
     setQuestion('');
     
     setLoading(true);
+    setStreamedResponse(null);
     const currentQuestion = question;
-    
+
     // Start timing
     const timeStart = Date.now();
     setStartTime(timeStart);
 
-    try {
-      const res = await fetch('/api/llm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: currentQuestion, mode: "analyze" }),
-      });
-      const data = await res.json();
-      
-      // Calculate response time
-      const responseTime = Date.now() - timeStart;
-      
-      // Add assistant response to chat with timing info
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: data.response || "No response received",
-        responseTime 
-      }]);
-    } catch (err) {
-      console.error(err);
-      const responseTime = Date.now() - timeStart;
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Error contacting the LLM API.',
-        responseTime
-      }]);
-    } finally {
-      setLoading(false);
-      setStartTime(null);
-    }
+    // Clean up any existing polling
+    if (cancelPollingRef.current) {
+      cancelPollingRef.current();
+      cancelPollingRef.current = null;
+    }    // Use the polling utility
+    cancelPollingRef.current = pollAnalysisRequest(
+      currentQuestion,
+      { 
+        top_k: 5,
+        maxPollingTime: 2 * 60 * 1000 // 2 minutes max waiting time
+      },
+      {
+        onPoll: (attempt, elapsedTime) => {
+          console.log(`Polling attempt ${attempt}, elapsed: ${Math.round(elapsedTime/1000)}s`);
+          // Update the elapsed time in the UI
+          setElapsedTime(elapsedTime);
+        },
+        
+        onFinal: (data) => {
+          // Got the final response
+          const responseTime = Date.now() - timeStart;
+          
+          // Add assistant response to chat with timing info
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: data.response || "No response received",
+            responseTime 
+          }]);
+          
+          setLoading(false);
+          setStartTime(null);
+          setStreamedResponse(null);
+          cancelPollingRef.current = null;
+        },
+        
+        onError: (error) => {
+          console.error("Error:", error);
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: 'Error receiving the response.',
+            responseTime: Date.now() - timeStart
+          }]);
+          
+          setLoading(false);
+          setStartTime(null);
+          setStreamedResponse(null);
+          cancelPollingRef.current = null;
+        },
+        
+        onTimeout: () => {
+          console.error("Request timed out");
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: 'Sorry, the request timed out. Please try again with a shorter query.',
+            responseTime: Date.now() - timeStart
+          }]);
+          
+          setLoading(false);
+          setStartTime(null);
+          setStreamedResponse(null);
+          cancelPollingRef.current = null;
+        }
+      }
+    );
   };
 
   const handlePresetPrompt = async (preset: string) => {
@@ -112,40 +160,76 @@ const LLMPage = () => {
     setChatHistory(prev => [...prev, { role: 'user', content: preset }]);
     
     setLoading(true);
+    setStreamedResponse(null);
     
     // Start timing
     const timeStart = Date.now();
     setStartTime(timeStart);
 
-    try {
-      const res = await fetch('/api/llm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: preset, mode: "analyze" }),
-      });
-      const data = await res.json();
-      
-      // Calculate response time
-      const responseTime = Date.now() - timeStart;
-      
-      // Add assistant response to chat with timing info
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: data.response || "No response received",
-        responseTime
-      }]);
-    } catch (err) {
-      console.error(err);
-      const responseTime = Date.now() - timeStart;
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Error contacting the LLM API.',
-        responseTime
-      }]);
-    } finally {
-      setLoading(false);
-      setStartTime(null);
-    }
+    // Clean up any existing polling
+    if (cancelPollingRef.current) {
+      cancelPollingRef.current();
+      cancelPollingRef.current = null;
+    }    // Use the polling utility
+    cancelPollingRef.current = pollAnalysisRequest(
+      preset,
+      { 
+        top_k: 5,
+        maxPollingTime: 2 * 60 * 1000 // 2 minutes max waiting time
+      },
+      {
+        onPoll: (attempt, elapsedTime) => {
+          console.log(`Polling attempt ${attempt}, elapsed: ${Math.round(elapsedTime/1000)}s`);
+          // Update the elapsed time in the UI
+          setElapsedTime(elapsedTime);
+        },
+        
+        onFinal: (data) => {
+          // Got the final response
+          const responseTime = Date.now() - timeStart;
+          
+          // Add assistant response to chat with timing info
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: data.response || "No response received",
+            responseTime 
+          }]);
+          
+          setLoading(false);
+          setStartTime(null);
+          setStreamedResponse(null);
+          cancelPollingRef.current = null;
+        },
+        
+        onError: (error) => {
+          console.error("Error:", error);
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: 'Error receiving the response.',
+            responseTime: Date.now() - timeStart
+          }]);
+          
+          setLoading(false);
+          setStartTime(null);
+          setStreamedResponse(null);
+          cancelPollingRef.current = null;
+        },
+        
+        onTimeout: () => {
+          console.error("Request timed out");
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: 'Sorry, the request timed out. Please try again with a shorter query.',
+            responseTime: Date.now() - timeStart
+          }]);
+          
+          setLoading(false);
+          setStartTime(null);
+          setStreamedResponse(null);
+          cancelPollingRef.current = null;
+        }
+      }
+    );
   };
 
   // Clear chat history
@@ -245,19 +329,31 @@ const LLMPage = () => {
                 </span>
               )}
             </div>
-          ))}
-
-          {/* Loading indicator with live timer */}
+          ))}          {/* Loading indicator with live timer */}
           {loading && (
             <div className="flex justify-start flex-col">
-              <div className="bg-[#E0E9F6] p-4 rounded-lg text-[#3E68A3] max-w-[80%] flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#3E68A3] rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-[#3E68A3] rounded-full animate-pulse delay-100"></div>
-                <div className="w-2 h-2 bg-[#3E68A3] rounded-full animate-pulse delay-200"></div>
+              <div className="bg-[#E0E9F6] p-4 rounded-lg text-[#3E68A3] max-w-[80%]">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-[#3E68A3] rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-[#3E68A3] rounded-full animate-pulse delay-100"></div>
+                  <div className="w-2 h-2 bg-[#3E68A3] rounded-full animate-pulse delay-200"></div>
+                  <span className="text-sm ml-2">Thinking...</span>
+                </div>
+                
+                {/* Show a timer */}
+                <p className="text-sm text-gray-500">
+                  Time elapsed: {formatResponseTime(elapsedTime)}
+                </p>
+                
+                {/* Show streamed response if available */}
+                {streamedResponse && (
+                  <div className="mt-3 prose prose-sm max-w-none prose-headings:my-2 prose-p:my-1 prose-ul:my-1 prose-li:my-0">
+                    <ReactMarkdown>
+                      {streamedResponse}
+                    </ReactMarkdown>
+                  </div>
+                )}
               </div>
-              <span className="text-xs text-gray-500 mt-1 ml-1">
-                Time elapsed: {formatResponseTime(elapsedTime)}
-              </span>
             </div>
           )}
         </div>
