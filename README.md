@@ -1,10 +1,40 @@
-## DBL - American Aviators Preview Website
+# DBL - American Aviators Preview Website
 
 ## What is in this repository?
 This repository contains the source code for the American Aviators Preview website. It houses 3 main webpages:
 - **Home Page**: A landing page that provides an overview of the American Aviators project.
 - **Language Model Page**: A page dedicated to the analysis language model.
 - **Fake Twitter Page**: A page dedicated to the Twitter integration and response model.
+
+# How to Use the Website
+
+## Getting Started
+1. **Access the System**: Visit [https://american-aviators.thorvaldrovers.com](https://american-aviators.thorvaldrovers.com) to access the Tweet Support Bot interface.
+2. **Check API Status**: Before using the tools, look at the API status indicator on the homepage. A green dot indicates the system is online and ready for use.
+3. **Contact for Support**: If you encounter any issues or need access permissions, contact the maintainer of the AI server:
+   - Email: contact@thorvaldrovers.com or t.rovers1@student.tue.nl
+   - Include your username and purpose for using the system in your message
+
+## Available Tools
+
+### Tweet Analysis Tool
+- Select "Ask the LLM" from the homepage
+- Enter a query about American Airlines customer service tweets
+- The system will analyze thousands of real tweets and provide insights
+- Responses may take 2-3 minutes due to the comprehensive analysis being performed
+
+### PR Response Generator
+- Select "Write a Fake Tweet" from the homepage
+- Enter a customer complaint or query
+- The system will generate an appropriate customer service response based on American Airlines' typical response patterns
+- Ideal for training customer service representatives on best practices
+
+## Technical Notes
+- The system uses advanced natural language processing to analyze tweet sentiment and patterns
+- Response times vary based on server load and query complexity
+- All data is processed securely and no personal information is stored
+- The system is optimized for desktop but works on mobile devices as well
+- Long-running queries automatically maintain connection for up to 7 minutes
 
 ## How to run the website locally
 1. Download node.js from [nodejs.org](https://nodejs.org/).
